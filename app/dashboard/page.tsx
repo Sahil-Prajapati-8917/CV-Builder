@@ -2,18 +2,15 @@
 
 import { useCVStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Plus, Edit, Trash2, Copy, ExternalLink, FileText, Sparkles, Moon, Sun } from "lucide-react";
+import { Plus, Edit, Trash2, Copy, ExternalLink, FileText, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useTheme } from "@/lib/theme-provider";
 import { CVTemplateRenderer } from "@/components/templates";
 
 export default function DashboardPage() {
   const router = useRouter();
   const { cvs, loadCV, deleteCV, duplicateCV, resetCurrentCV } = useCVStore();
-  const { isDark, toggle } = useTheme();
 
   const handleEdit = (id: string) => {
     loadCV(id);
@@ -42,30 +39,25 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-[#09090b]">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10">
+      <header className="glass-dark sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center">
-              <FileText className="h-5 w-5 text-white" />
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
+              <FileText className="h-4.5 w-4.5 text-white" />
             </div>
-            <span className="font-bold text-xl text-gray-900 dark:text-white">CVForge</span>
+            <span className="font-bold text-lg tracking-tight text-white">CVForge</span>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <Link href="/templates" className="text-sm text-zinc-400 hover:text-white transition-colors duration-300">
+              Templates
+            </Link>
             <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggle}
-              title={isDark ? "Light mode" : "Dark mode"}
-            >
-              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </Button>
-            <Button 
               onClick={handleNew}
-              className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 shadow-lg shadow-violet-500/25 text-sm font-medium"
+              className="bg-white text-zinc-900 hover:bg-zinc-100 text-sm font-semibold px-5 h-9 rounded-lg shadow-lg shadow-white/10"
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 mr-1.5" />
               Create New CV
             </Button>
           </div>
@@ -73,66 +65,77 @@ export default function DashboardPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-10">
-        <div className="flex items-center justify-between mb-8">
+      <main className="max-w-7xl mx-auto px-6 py-16">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-12">
           <div>
-            <h1 className="text-h2 font-bold text-gray-900 dark:text-white">Your CVs</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage and edit your saved resumes</p>
+            <span className="text-xs font-semibold tracking-[0.2em] uppercase text-violet-400 mb-2 block">Your Portfolio</span>
+            <h1 className="text-h2 font-bold text-white">Your CVs</h1>
+            <p className="text-sm text-zinc-500 mt-1">Manage, edit, and share your resumes</p>
           </div>
           {cvs.length > 0 && (
-            <div className="hidden sm:flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 font-medium">
-              <Sparkles className="h-4 w-4" />
+            <div className="hidden sm:flex items-center gap-2 text-sm text-zinc-500 font-medium">
+              <Sparkles className="h-4 w-4 text-violet-400" />
               {cvs.length} CV{cvs.length !== 1 ? "s" : ""} saved
             </div>
           )}
         </div>
 
         {cvs.length === 0 ? (
-          <Card className="p-16 text-center bg-white dark:bg-gray-900 border-2 border-dashed border-gray-200 dark:border-gray-700">
-            <div className="w-16 h-16 rounded-2xl bg-violet-50 dark:bg-violet-950 flex items-center justify-center mx-auto mb-5">
-              <FileText className="h-8 w-8 text-violet-500" />
+          /* Empty State */
+          <div className="text-center py-24">
+            <div className="relative inline-block mb-8">
+              <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-purple-600 rounded-2xl blur-xl opacity-20" />
+              <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-600/10 to-purple-600/10 border border-violet-500/20 flex items-center justify-center">
+                <FileText className="h-10 w-10 text-violet-400" />
+              </div>
             </div>
-            <h2 className="text-h3 font-bold text-gray-900 dark:text-white mb-2">No CVs yet</h2>
-            <p className="text-body text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
-              Create your first CV and start building your professional portfolio. 
-              It only takes a few minutes!
+            <h2 className="text-xl font-bold text-white mb-3">No CVs yet</h2>
+            <p className="text-zinc-500 mb-8 max-w-md mx-auto leading-relaxed">
+              Create your first CV and start building your professional portfolio.
+              It only takes a few minutes.
             </p>
-            <Button onClick={handleNew} size="lg" className="bg-gradient-to-r from-violet-600 to-purple-600 text-sm font-medium">
+            <Button
+              onClick={handleNew}
+              size="lg"
+              className="btn-premium bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-sm font-semibold shadow-2xl shadow-violet-600/30 rounded-xl px-8 h-12"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Create Your First CV
             </Button>
-          </Card>
+          </div>
         ) : (
+          /* CV Grid */
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {cvs.map((cv) => (
-              <Card 
-                key={cv.id} 
-                className="group overflow-hidden hover:shadow-xl hover:shadow-violet-500/10 transition-all duration-300 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+              <div
+                key={cv.id}
+                className="group rounded-2xl overflow-hidden border border-zinc-800/50 hover:border-violet-500/30 card-luxury bg-zinc-900/30"
               >
                 {/* Mini CV Preview */}
-                <div className="h-48 overflow-hidden bg-white relative">
+                <div className="h-52 overflow-hidden bg-white relative">
                   <div className="transform scale-[0.35] origin-top-left w-[285%] pointer-events-none">
                     <CVTemplateRenderer data={cv} />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-gray-900 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-transparent to-transparent" />
                 </div>
 
                 {/* Content */}
-                <div className="p-4 border-t border-gray-100 dark:border-gray-800">
-                  <h3 className="font-semibold text-base text-gray-900 dark:text-white truncate mb-1">
+                <div className="p-5">
+                  <h3 className="font-semibold text-base text-white truncate mb-1">
                     {cv.name || "Untitled CV"}
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate mb-4">
+                  <p className="text-sm text-zinc-500 truncate mb-4">
                     {cv.email || "No email added"}
                   </p>
 
                   <div className="flex items-center justify-between">
-                    <div className="flex gap-1">
+                    <div className="flex gap-1.5">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleEdit(cv.id!)}
-                        className="flex-1 text-violet-600 border-violet-200 hover:bg-violet-50 hover:border-violet-300 dark:text-violet-400 dark:border-violet-800 dark:hover:bg-violet-950 text-xs font-medium"
+                        className="flex-1 text-violet-400 border-violet-500/20 hover:bg-violet-500/10 hover:border-violet-500/40 text-xs font-medium"
                       >
                         <Edit className="h-3 w-3 mr-1" />
                         Edit
@@ -141,7 +144,7 @@ export default function DashboardPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => copyShareLink(cv.slug!)}
-                        className="px-2"
+                        className="px-2 border-zinc-700 text-zinc-400 hover:text-white hover:bg-white/5 hover:border-zinc-500"
                         title="Copy share link"
                       >
                         <ExternalLink className="h-3 w-3" />
@@ -152,7 +155,7 @@ export default function DashboardPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDuplicate(cv.id!)}
-                        className="text-gray-500 hover:text-blue-600 h-8 w-8 p-0"
+                        className="text-zinc-500 hover:text-blue-400 hover:bg-blue-500/10 h-8 w-8 p-0"
                         title="Duplicate"
                       >
                         <Copy className="h-3.5 w-3.5" />
@@ -161,7 +164,7 @@ export default function DashboardPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(cv.id!)}
-                        className="text-gray-400 hover:text-red-600 h-8 w-8 p-0"
+                        className="text-zinc-600 hover:text-red-400 hover:bg-red-500/10 h-8 w-8 p-0"
                         title="Delete"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -169,26 +172,26 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
-                    Updated {cv.updatedAt ? new Date(cv.updatedAt).toLocaleDateString("en-US", { 
-                      month: "short", 
-                      day: "numeric", 
-                      year: "numeric" 
+                  <p className="text-xs text-zinc-600 mt-4 pt-3 border-t border-zinc-800/50">
+                    Updated {cv.updatedAt ? new Date(cv.updatedAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric"
                     }) : "N/A"}
                   </p>
                 </div>
-              </Card>
+              </div>
             ))}
 
             {/* Create New Card */}
             <button
               onClick={handleNew}
-              className="min-h-[240px] bg-white dark:bg-gray-900 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl flex flex-col items-center justify-center gap-3 hover:border-violet-300 dark:hover:border-violet-600 hover:bg-violet-50/50 dark:hover:bg-violet-950/30 transition-all duration-300"
+              className="min-h-[300px] rounded-2xl border-2 border-dashed border-zinc-800 hover:border-violet-500/40 bg-zinc-900/20 hover:bg-violet-500/5 flex flex-col items-center justify-center gap-4 transition-all duration-500 group"
             >
-              <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                <Plus className="h-6 w-6 text-gray-400" />
+              <div className="w-14 h-14 rounded-xl bg-zinc-800/50 group-hover:bg-violet-500/10 border border-zinc-700/50 group-hover:border-violet-500/30 flex items-center justify-center transition-all duration-500">
+                <Plus className="h-6 w-6 text-zinc-500 group-hover:text-violet-400 transition-colors duration-500" />
               </div>
-              <span className="font-medium text-sm text-gray-500 dark:text-gray-400">Create New CV</span>
+              <span className="font-medium text-sm text-zinc-500 group-hover:text-violet-400 transition-colors duration-500">Create New CV</span>
             </button>
           </div>
         )}

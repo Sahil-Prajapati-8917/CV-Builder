@@ -17,6 +17,7 @@ import {
   Layers,
 } from "lucide-react";
 import { HeroBackground } from "@/components/hero-background";
+import { LandingHeader } from "@/components/landing-header";
 
 export default function HomePage() {
   const features = [

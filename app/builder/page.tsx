@@ -2,7 +2,7 @@
 
 import { useCVStore } from "@/lib/store";
 import { STEPS } from "@/lib/types";
-import { ChevronLeft, ChevronRight, Save, Download, Share2, FileText, Eye, Moon, Sun } from "lucide-react";
+import { ChevronLeft, ChevronRight, Save, Download, Share2, FileText, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -21,7 +21,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useTheme } from "@/lib/theme-provider";
 import { validateStep } from "@/lib/validation";
 
 export default function BuilderPage() {
@@ -32,7 +31,6 @@ export default function BuilderPage() {
   const [isExporting, setIsExporting] = useState(false);
   const [showMobilePreview, setShowMobilePreview] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { isDark, toggle } = useTheme();
 
   const validateCurrentStep = (): boolean => {
     const stepErrors = validateStep(currentStep, currentCV as unknown as Record<string, unknown>);
@@ -70,11 +68,7 @@ export default function BuilderPage() {
     }
 
     try {
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-      });
+      const canvas = await html2canvas(element, { scale: 2, useCORS: true, logging: false });
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -102,56 +96,48 @@ export default function BuilderPage() {
 
   const renderStep = () => {
     switch (currentStep) {
-      case 1:
-        return <BasicInfoStep />;
-      case 2:
-        return <SummaryStep />;
-      case 3:
-        return <EducationStep />;
-      case 4:
-        return <ExperienceStep />;
-      case 5:
-        return <SkillsStep />;
-      case 6:
-        return <ProjectsStep />;
-      case 7:
-        return <CustomStep />;
-      default:
-        return <BasicInfoStep />;
+      case 1: return <BasicInfoStep />;
+      case 2: return <SummaryStep />;
+      case 3: return <EducationStep />;
+      case 4: return <ExperienceStep />;
+      case 5: return <SkillsStep />;
+      case 6: return <ProjectsStep />;
+      case 7: return <CustomStep />;
+      default: return <BasicInfoStep />;
     }
   };
 
   const templates = [
-    { id: "minimal", name: "Minimal", color: "bg-gray-800" },
+    { id: "minimal", name: "Minimal", color: "bg-gray-600" },
     { id: "modern", name: "Modern", color: "bg-blue-600" },
     { id: "creative", name: "Creative", color: "bg-gradient-to-r from-violet-600 to-pink-600" },
     { id: "professional", name: "Professional", color: "bg-gray-700" },
-    { id: "executive", name: "Executive", color: "bg-slate-700" },
-    { id: "classic", name: "Classic", color: "bg-black" },
+    { id: "executive", name: "Executive", color: "bg-slate-600" },
+    { id: "classic", name: "Classic", color: "bg-zinc-800" },
   ] as const;
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-950">
+    <div className="h-screen flex flex-col bg-[#09090b]">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center justify-between shrink-0">
+      <header className="glass-dark px-4 py-3 flex items-center justify-between shrink-0 z-50">
         <div className="flex items-center gap-5">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
               <FileText className="h-4 w-4 text-white" />
             </div>
-            <span className="font-bold text-base hidden sm:block text-gray-900 dark:text-white">CVForge</span>
+            <span className="font-bold text-base hidden sm:block text-white">CVForge</span>
           </Link>
-          
+
           {/* Template Selector */}
-          <div className="hidden md:flex items-center gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+          <div className="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10">
             {templates.map((t) => (
               <button
                 key={t.id}
                 onClick={() => updateCurrentCV({ template: t.id })}
-                className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-all duration-300 ${
                   currentCV.template === t.id
                     ? `text-white shadow-sm ${t.color}`
-                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                    : "text-zinc-500 hover:text-white"
                 }`}
               >
                 {t.name}
@@ -159,43 +145,34 @@ export default function BuilderPage() {
             ))}
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
-            size="icon"
-            onClick={toggle}
-            className="hidden sm:flex"
-            title={isDark ? "Light mode" : "Dark mode"}
-          >
-            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleShare} 
+            size="sm"
+            onClick={handleShare}
             disabled={isSaving}
-            className="hidden sm:flex text-sm font-medium"
+            className="hidden sm:flex text-sm text-zinc-400 hover:text-white hover:bg-white/5"
           >
             <Share2 className="h-4 w-4 mr-1" />
             Share
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleExportPDF} 
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportPDF}
             disabled={isExporting}
-            className="text-sm font-medium"
+            className="text-sm border-zinc-700 text-zinc-300 hover:text-white hover:bg-white/5 hover:border-zinc-500"
           >
             <Download className="h-4 w-4 mr-1" />
             <span className="hidden sm:inline">{isExporting ? "Exporting..." : "PDF"}</span>
             <span className="sm:hidden">{isExporting ? "..." : "PDF"}</span>
           </Button>
-          <Button 
-            size="sm" 
-            onClick={handleSave} 
+          <Button
+            size="sm"
+            onClick={handleSave}
             disabled={isSaving}
-            className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-sm font-medium"
+            className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-sm font-medium shadow-lg shadow-violet-600/25"
           >
             <Save className="h-4 w-4 mr-1" />
             {isSaving ? "Saving..." : "Save"}
@@ -206,19 +183,19 @@ export default function BuilderPage() {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Form Panel */}
-        <div className={`${showMobilePreview ? "hidden lg:block" : "w-full"} lg:w-1/2 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-y-auto`}>
+        <div className={`${showMobilePreview ? "hidden lg:block" : "w-full"} lg:w-1/2 border-r border-zinc-800/50 bg-[#09090b] overflow-y-auto`}>
           <div className="p-6 lg:p-8">
             {/* Progress Bar */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-2">
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-violet-600">
+                  <span className="text-xs font-semibold text-violet-400">
                     Step {currentStep}
                   </span>
-                  <span className="text-gray-300 dark:text-gray-600">•</span>
-                  <span className="text-xs font-medium text-gray-500">{STEPS[currentStep - 1].name}</span>
+                  <span className="text-zinc-700">•</span>
+                  <span className="text-xs font-medium text-zinc-500">{STEPS[currentStep - 1].name}</span>
                 </div>
-                <span className="text-xs text-gray-400 font-medium">
+                <span className="text-xs text-zinc-600 font-medium">
                   {Math.round((currentStep / STEPS.length) * 100)}% complete
                 </span>
               </div>
@@ -227,12 +204,12 @@ export default function BuilderPage() {
                   <button
                     key={step.id}
                     onClick={() => setCurrentStep(step.id)}
-                    className={`flex-1 h-1 rounded-full transition-all duration-300 ${
-                      step.id < currentStep 
-                        ? "bg-violet-500" 
-                        : step.id === currentStep 
-                        ? "bg-violet-600" 
-                        : "bg-gray-200 dark:bg-gray-700"
+                    className={`flex-1 h-1.5 rounded-full transition-all duration-500 ${
+                      step.id < currentStep
+                        ? "bg-violet-500"
+                        : step.id === currentStep
+                        ? "bg-violet-600 shadow-lg shadow-violet-600/50"
+                        : "bg-zinc-800"
                     }`}
                   />
                 ))}
@@ -241,37 +218,37 @@ export default function BuilderPage() {
 
             {/* Validation Errors */}
             {Object.keys(errors).length > 0 && (
-              <div className="mb-4 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg">
+              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
                 {Object.entries(errors).map(([key, msg]) => (
-                  <p key={key} className="text-xs text-red-600 dark:text-red-400">{msg}</p>
+                  <p key={key} className="text-xs text-red-400">{msg}</p>
                 ))}
               </div>
             )}
 
             {/* Step Content */}
-            <Card className="p-0 border-0 shadow-none min-h-[350px] dark:bg-transparent">
+            <Card className="p-0 border-0 shadow-none min-h-[350px] bg-transparent">
               {renderStep()}
             </Card>
 
             {/* Navigation */}
-            <div className="flex justify-between items-center mt-8 pt-5 border-t border-gray-100 dark:border-gray-800">
+            <div className="flex justify-between items-center mt-10 pt-6 border-t border-zinc-800/50">
               <Button
                 variant="outline"
                 onClick={prevStep}
                 disabled={currentStep === 1}
-                className="gap-1.5 text-sm font-medium"
+                className="gap-1.5 text-sm font-medium border-zinc-700 text-zinc-400 hover:text-white hover:bg-white/5 hover:border-zinc-500"
               >
                 <ChevronLeft className="h-4 w-4" />
                 Previous
               </Button>
-              
+
               {currentStep < 7 ? (
-                <Button onClick={handleNext} className="gap-1.5 bg-violet-600 hover:bg-violet-700 text-sm font-medium">
+                <Button onClick={handleNext} className="gap-1.5 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-sm font-medium shadow-lg shadow-violet-600/25">
                   Next
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               ) : (
-                <Button onClick={handleSave} className="gap-1.5 bg-violet-600 hover:bg-violet-700 text-sm font-medium">
+                <Button onClick={handleSave} className="gap-1.5 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-sm font-medium shadow-lg shadow-violet-600/25">
                   <Save className="h-4 w-4" />
                   Finish
                 </Button>
@@ -281,24 +258,24 @@ export default function BuilderPage() {
         </div>
 
         {/* Preview Panel */}
-        <div className={`${showMobilePreview ? "w-full lg:w-1/2" : "hidden lg:block lg:w-1/2"} bg-gray-100 dark:bg-gray-950`}>
+        <div className={`${showMobilePreview ? "w-full lg:w-1/2" : "hidden lg:block lg:w-1/2"} bg-zinc-950`}>
           <div className="h-full flex flex-col">
-            <div className="px-4 py-2.5 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-              <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Live Preview</span>
+            <div className="px-4 py-2.5 glass-dark border-b border-zinc-800/50 flex items-center justify-between">
+              <span className="text-xs font-semibold text-zinc-400">Live Preview</span>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-400">Updates in real-time</span>
+                <span className="text-xs text-zinc-600">Updates in real-time</span>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowMobilePreview(false)}
-                  className="lg:hidden text-xs"
+                  className="lg:hidden text-xs text-zinc-400 hover:text-white"
                 >
                   Back to Form
                 </Button>
               </div>
             </div>
-            <div className="flex-1 overflow-auto p-4">
-              <div className="shadow-2xl rounded-lg overflow-hidden bg-white">
+            <div className="flex-1 overflow-auto p-6">
+              <div className="shadow-2xl rounded-xl overflow-hidden bg-white shadow-black/50">
                 <CVPreview />
               </div>
             </div>
@@ -311,7 +288,7 @@ export default function BuilderPage() {
         <Button
           size="lg"
           onClick={() => setShowMobilePreview(!showMobilePreview)}
-          className="rounded-full shadow-2xl bg-violet-600 hover:bg-violet-700 h-14 w-14 p-0"
+          className="rounded-full shadow-2xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 h-14 w-14 p-0 shadow-violet-600/30"
         >
           <Eye className="h-6 w-6" />
         </Button>

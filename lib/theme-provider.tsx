@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useCallback, useState } from "react";
+import { createContext, useContext, useCallback, useEffect, useState } from "react";
 
 interface ThemeContextType {
   isDark: boolean;
@@ -26,14 +26,13 @@ function getInitialTheme(): boolean {
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [isDark, setIsDark] = useState(getInitialTheme);
 
-  if (typeof document !== "undefined") {
+  useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
-  }
+  }, [isDark]);
 
   const toggle = useCallback(() => {
     setIsDark((prev) => {
       const next = !prev;
-      document.documentElement.classList.toggle("dark", next);
       localStorage.setItem("cvforge-theme", next ? "dark" : "light");
       return next;
     });
