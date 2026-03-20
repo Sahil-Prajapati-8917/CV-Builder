@@ -337,7 +337,7 @@ export default function BuilderPage() {
 
           <div ref={previewContainerRef} className="flex-1 overflow-auto p-6 flex justify-center" onClick={() => setShowSizeMenu(false)}>
             <div style={{ transform: `scale(${zoom})`, transformOrigin: "top center" }}
-              className="shadow-2xl rounded-lg overflow-hidden bg-white shadow-black/20 dark:shadow-black/50 ring-1 ring-gray-200 dark:ring-white/5 transition-all duration-300 w-[595px] aspect-[210/297]">
+              className={`shadow-2xl rounded-lg overflow-hidden bg-white shadow-black/20 dark:shadow-black/50 ring-1 ring-gray-200 dark:ring-white/5 transition-all duration-300 w-[500px] ${currentPaper.ratio}`}>
               <div id="cv-preview" className="w-full h-full overflow-hidden">
                 <CVTemplateRenderer data={currentCV} />
               </div>

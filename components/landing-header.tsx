@@ -76,12 +76,14 @@ export function LandingHeader() {
           </div>
 
           {/* Mobile Menu Toggle */}
-          <button
+          <Button
+            variant="ghost"
+            size="icon-sm"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-all duration-300"
+            className="md:hidden bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10"
           >
             {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-          </button>
+          </Button>
         </div>
       </header>
 
