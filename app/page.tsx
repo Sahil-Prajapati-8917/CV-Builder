@@ -10,7 +10,6 @@ import {
   Shield,
   Zap,
   Star,
-  ChevronRight,
   Check,
   Globe,
   Lock,
@@ -109,31 +108,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#09090b] text-white overflow-x-hidden">
-      {/* Navbar */}
-      <header className="fixed top-0 left-0 right-0 z-50 glass-dark">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
-              <FileText className="h-4.5 w-4.5 text-white" />
-            </div>
-            <span className="font-bold text-lg tracking-tight text-white">CVForge</span>
-          </Link>
-          <nav className="hidden md:flex items-center gap-8">
-            <Link href="/templates" className="text-sm text-zinc-400 hover:text-white transition-colors duration-300">
-              Templates
-            </Link>
-            <Link href="/dashboard" className="text-sm text-zinc-400 hover:text-white transition-colors duration-300">
-              Dashboard
-            </Link>
-            <Link href="/builder">
-              <Button className="bg-white text-zinc-900 hover:bg-zinc-100 text-sm font-semibold px-5 h-9 rounded-lg shadow-lg shadow-white/10 transition-all duration-300 hover:shadow-white/20">
-                Create CV
-                <ChevronRight className="ml-1 h-3.5 w-3.5" />
-              </Button>
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <LandingHeader />
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center pt-20">
