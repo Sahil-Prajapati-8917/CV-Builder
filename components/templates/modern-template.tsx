@@ -12,7 +12,7 @@ export function ModernTemplate({ data }: ModernTemplateProps) {
   const languages = data.customSections.find((s) => s.type === "languages")?.items || [];
 
   return (
-    <div className="cv-template bg-white text-gray-800 p-8 max-w-[800px] mx-auto font-sans">
+    <div className="cv-template bg-white text-gray-800 p-8 font-sans">
       {/* Header */}
       <header className="mb-6">
         <h1 className="text-3xl font-bold text-slate-900">{data.name || "Your Name"}</h1>

@@ -12,7 +12,7 @@ export function ClassicTemplate({ data }: ClassicTemplateProps) {
   const languages = data.customSections.find((s) => s.type === "languages")?.items || [];
 
   return (
-    <div className="cv-template bg-white text-black p-8 max-w-[800px] mx-auto font-sans text-[11px] leading-relaxed">
+    <div className="cv-template bg-white text-black p-8 font-sans text-[11px] leading-relaxed">
       {/* Header */}
       <header className="text-center mb-4">
         <h1 className="text-xl font-bold uppercase tracking-wider">

@@ -13,7 +13,7 @@ export function MinimalTemplate({ data }: MinimalTemplateProps) {
   const languages = data.customSections.find((s) => s.type === "languages")?.items || [];
 
   return (
-    <div className="cv-template bg-white text-black p-8 max-w-[800px] mx-auto font-sans">
+    <div className="cv-template bg-white text-black p-8 font-sans">
       <header className="mb-8 border-b border-gray-200 pb-6">
         <div className="flex items-start gap-6">
           {data.profileImage && (

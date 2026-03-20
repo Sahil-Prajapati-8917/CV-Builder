@@ -5,7 +5,7 @@ import { STEPS } from "@/lib/types";
 import {
   ChevronLeft, ChevronRight, Save, Download, Share2, FileText, Eye,
   User, FileSignature, GraduationCap, Briefcase, Wrench, FolderOpen, Sparkles,
-  Printer, ZoomIn, ZoomOut, PanelLeftClose, PanelLeft, Maximize2
+  Printer, ZoomIn, ZoomOut, PanelLeftClose, PanelLeft, Maximize2, Type
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +18,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { validateStep } from "@/lib/validation";
 
@@ -40,6 +40,21 @@ const paperSizes: Record<string, { label: string; w: number; h: number; ratio: s
   legal: { label: "Legal", w: 215.9, h: 355.6, ratio: "aspect-[2159/3556]" },
 };
 
+const fontFamilies = [
+  { name: "Inter", value: "Inter, sans-serif" },
+  { name: "Arial", value: "Arial, sans-serif" },
+  { name: "Georgia", value: "Georgia, serif" },
+  { name: "Times New Roman", value: "'Times New Roman', serif" },
+  { name: "Roboto", value: "Roboto, sans-serif" },
+  { name: "Lora", value: "Lora, serif" },
+];
+
+const fontSizes = [
+  { label: "Small", value: "12px" },
+  { label: "Medium", value: "14px" },
+  { label: "Large", value: "16px" },
+];
+
 export default function BuilderPage() {
   const router = useRouter();
   const { currentCV, currentStep, setCurrentStep, nextStep, prevStep, updateCurrentCV, saveCV } = useCVStore();
@@ -51,7 +66,36 @@ export default function BuilderPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [paperSize, setPaperSize] = useState("a4");
   const [showSizeMenu, setShowSizeMenu] = useState(false);
+  const [fontFamily, setFontFamily] = useState("Inter");
+  const [fontSize, setFontSize] = useState("14px");
+  const [showFontMenu, setShowFontMenu] = useState(false);
+  const [showFontSizeMenu, setShowFontSizeMenu] = useState(false);
+  const [pageCount, setPageCount] = useState(1);
+  const [paperHeightPx, setPaperHeightPx] = useState(0);
   const previewContainerRef = useRef<HTMLDivElement>(null);
+
+  // Measure CV preview height and calculate page count
+  const measurePages = useCallback(() => {
+    const el = document.getElementById("cv-preview");
+    if (!el) return;
+    const contentHeight = el.scrollHeight;
+    const paper = paperSizes[paperSize];
+    const pHeightPx = (paper.h * 96) / 25.4;
+    setPaperHeightPx(pHeightPx);
+    const pages = Math.max(1, Math.ceil(contentHeight / pHeightPx));
+    setPageCount(pages);
+  }, [paperSize]);
+
+  useEffect(() => {
+    const el = document.getElementById("cv-preview");
+    if (!el) return;
+    const observer = new ResizeObserver(() => {
+      requestAnimationFrame(() => measurePages());
+    });
+    observer.observe(el);
+    requestAnimationFrame(() => measurePages());
+    return () => observer.disconnect();
+  }, [measurePages, currentCV]);
 
   const validateCurrentStep = (): boolean => {
     const stepErrors = validateStep(currentStep, currentCV as unknown as Record<string, unknown>);
@@ -291,10 +335,18 @@ export default function BuilderPage() {
 
         {/* Preview Panel */}
         <div className={`${showMobilePreview ? "flex" : "hidden"} lg:flex flex-col w-full lg:w-[55%] bg-gray-100 dark:bg-zinc-950 border-l border-gray-200 dark:border-zinc-800/50`}>
-          <div className="px-4 py-2.5 bg-white/80 dark:bg-[#09090b]/80 backdrop-blur-2xl border-b border-gray-200 dark:border-zinc-800/50 flex items-center justify-between shrink-0">
+          <div className="px-4 py-2.5 bg-white/80 dark:bg-[#09090b]/80 backdrop-blur-2xl border-b border-gray-200 dark:border-zinc-800/50 flex items-center justify-between shrink-0 relative z-30">
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
               <span className="text-[11px] font-semibold text-gray-600 dark:text-zinc-400">Live Preview</span>
+              <div className="w-px h-3 bg-gray-200 dark:bg-zinc-800 mx-1" />
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                pageCount > 1
+                  ? "bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400"
+                  : "bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400"
+              }`}>
+                {pageCount} {pageCount === 1 ? "page" : "pages"} ({currentPaper.label})
+              </span>
             </div>
             <div className="flex items-center gap-1">
               <button onClick={() => setZoom(z => Math.max(0.4, z - 0.1))} className="w-7 h-7 rounded-md bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 flex items-center justify-center text-gray-500 dark:text-zinc-500 hover:text-gray-900 dark:hover:text-white transition-all">
@@ -326,6 +378,45 @@ export default function BuilderPage() {
                 )}
               </div>
               <div className="w-px h-4 bg-gray-200 dark:bg-zinc-800 mx-1" />
+
+              {/* Font Family Selector */}
+              <div className="relative">
+                <button onClick={() => { setShowFontMenu(!showFontMenu); setShowFontSizeMenu(false); setShowSizeMenu(false); }}
+                  className="h-7 px-2 rounded-md bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 flex items-center gap-1 text-gray-500 dark:text-zinc-500 hover:text-gray-900 dark:hover:text-white transition-all text-[10px] font-medium">
+                  <Type className="h-3 w-3" /> {fontFamily} <ChevronRight className="h-3 w-3 rotate-90" />
+                </button>
+                {showFontMenu && (
+                  <div className="absolute top-full right-0 mt-1 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg shadow-2xl overflow-hidden z-50 min-w-[140px]">
+                    {fontFamilies.map((font) => (
+                      <button key={font.name} onClick={() => { setFontFamily(font.name); setShowFontMenu(false); }}
+                        className={`w-full px-3 py-2 text-left text-[11px] hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-all ${fontFamily === font.name ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-500/5" : "text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white"}`}
+                        style={{ fontFamily: font.value }}>
+                        {font.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Font Size Selector */}
+              <div className="relative">
+                <button onClick={() => { setShowFontSizeMenu(!showFontSizeMenu); setShowFontMenu(false); setShowSizeMenu(false); }}
+                  className="h-7 px-2 rounded-md bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 flex items-center gap-1 text-gray-500 dark:text-zinc-500 hover:text-gray-900 dark:hover:text-white transition-all text-[10px] font-medium">
+                  {fontSizes.find(f => f.value === fontSize)?.label || "Medium"} <ChevronRight className="h-3 w-3 rotate-90" />
+                </button>
+                {showFontSizeMenu && (
+                  <div className="absolute top-full right-0 mt-1 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg shadow-2xl overflow-hidden z-50 min-w-[90px]">
+                    {fontSizes.map((size) => (
+                      <button key={size.value} onClick={() => { setFontSize(size.value); setShowFontSizeMenu(false); }}
+                        className={`w-full px-3 py-2 text-left text-[11px] hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-all ${fontSize === size.value ? "text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-500/5" : "text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white"}`}>
+                        {size.label} ({size.value})
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="w-px h-4 bg-gray-200 dark:bg-zinc-800 mx-1" />
               <button onClick={handlePrint} className="w-7 h-7 rounded-md bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 flex items-center justify-center text-gray-500 dark:text-zinc-500 hover:text-gray-900 dark:hover:text-white transition-all">
                 <Printer className="h-3.5 w-3.5" />
               </button>
@@ -335,12 +426,28 @@ export default function BuilderPage() {
             </div>
           </div>
 
-          <div ref={previewContainerRef} className="flex-1 overflow-auto p-6 flex justify-center" onClick={() => setShowSizeMenu(false)}>
+          <div ref={previewContainerRef} className="flex-1 overflow-auto p-6 flex justify-center" onClick={() => { setShowSizeMenu(false); setShowFontMenu(false); setShowFontSizeMenu(false); }}>
             <div style={{ transform: `scale(${zoom})`, transformOrigin: "top center" }}
-              className={`shadow-2xl rounded-lg overflow-hidden bg-white shadow-black/20 dark:shadow-black/50 ring-1 ring-gray-200 dark:ring-white/5 transition-all duration-300 w-[500px] ${currentPaper.ratio}`}>
-              <div id="cv-preview" className="w-full h-full overflow-hidden">
+              className="relative shadow-2xl rounded-lg bg-white shadow-black/20 dark:shadow-black/50 ring-1 ring-gray-200 dark:ring-white/5 transition-all duration-300 w-[550px] min-h-fit">
+              <div id="cv-preview" style={{ fontFamily: fontFamilies.find(f => f.name === fontFamily)?.value || "Inter, sans-serif", fontSize }}>
                 <CVTemplateRenderer data={currentCV} />
               </div>
+
+              {/* Page Break Lines */}
+              {pageCount > 1 && paperHeightPx > 0 && Array.from({ length: pageCount - 1 }, (_, i) => (
+                <div
+                  key={i}
+                  className="absolute left-0 right-0 z-20 pointer-events-none"
+                  style={{ top: `${paperHeightPx * (i + 1)}px` }}
+                >
+                  <div className="relative">
+                    <div className="border-t-2 border-dashed border-red-400 dark:border-red-500" />
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-red-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm whitespace-nowrap">
+                      Page {i + 1} end
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

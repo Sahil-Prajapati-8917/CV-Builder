@@ -12,7 +12,7 @@ export function ExecutiveTemplate({ data }: ExecutiveTemplateProps) {
   const languages = data.customSections.find((s) => s.type === "languages")?.items || [];
 
   return (
-    <div className="cv-template bg-white text-gray-800 p-10 max-w-[800px] mx-auto font-sans">
+    <div className="cv-template bg-white text-gray-800 p-10 font-sans">
       {/* Header */}
       <header className="mb-8">
         <h1 className="text-3xl font-light tracking-tight text-gray-900">

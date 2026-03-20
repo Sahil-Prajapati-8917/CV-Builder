@@ -12,7 +12,7 @@ export function ProfessionalTemplate({ data }: ProfessionalTemplateProps) {
   const languages = data.customSections.find((s) => s.type === "languages")?.items || [];
 
   return (
-    <div className="cv-template bg-white text-gray-900 p-10 max-w-[800px] mx-auto font-serif">
+    <div className="cv-template bg-white text-gray-900 p-10 font-serif">
       {/* Header */}
       <header className="text-center mb-8 pb-6 border-b-2 border-gray-800">
         <h1 className="text-3xl font-bold tracking-wide uppercase text-gray-900">
