@@ -118,9 +118,25 @@ export default function BuilderPage() {
       const canvas = await html2canvas(element, { scale: 2, useCORS: true, logging: false });
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", [size.w, size.h]);
-      pdf.addImage(imgData, "PNG", 0, 0, size.w, size.h);
+      const pdfWidth = size.w;
+      const pdfHeight = size.h;
+      const ratio = pdfWidth / canvas.width;
+      const totalCanvasHeightMm = canvas.height * ratio;
+      let renderedHeight = 0;
+      let page = 0;
+      while (renderedHeight < totalCanvasHeightMm) {
+        if (page > 0) pdf.addPage([pdfWidth, pdfHeight], "p");
+        const remainingMm = totalCanvasHeightMm - renderedHeight;
+        const destHeight = Math.min(pdfHeight, remainingMm);
+        const sourceHeight = Math.round(destHeight * canvas.width / pdfWidth);
+        const sourceY = Math.round(renderedHeight * canvas.width / pdfWidth);
+        const sourceHeightClamped = Math.min(sourceHeight, canvas.height - sourceY);
+        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, destHeight, undefined, "FAST", 0, sourceY, canvas.width, sourceHeightClamped);
+        renderedHeight += destHeight;
+        page++;
+      }
       pdf.save(`${currentCV.name || "cv"}.pdf`);
-      toast.success(`PDF downloaded (${size.label})!`);
+      toast.success(`PDF downloaded (${size.label}, ${page} ${page === 1 ? "page" : "pages"})!`);
     } catch { toast.error("Failed to export PDF"); }
     setIsExporting(false);
   };
