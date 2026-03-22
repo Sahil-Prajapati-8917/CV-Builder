@@ -17,6 +17,7 @@ const sectionConfig: Record<CustomSectionType, { label: string; icon: typeof Tro
 
 export function CustomStep() {
   const { currentCV, updateCurrentCV, prevStep, saveCV } = useCVStore();
+  const router = useRouter();
 
   const addItem = (type: CustomSectionType, value: string) => {
     if (!value.trim()) return;
