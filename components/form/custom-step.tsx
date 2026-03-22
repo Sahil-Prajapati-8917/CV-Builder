@@ -4,6 +4,8 @@ import { useCVStore } from "@/lib/store";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Trophy, Award, Languages, ChevronLeft, Save } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type CustomSectionType = "achievements" | "certifications" | "languages";
 
