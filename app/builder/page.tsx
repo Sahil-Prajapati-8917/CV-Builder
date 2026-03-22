@@ -127,7 +127,9 @@ export default function BuilderPage() {
 
   const handleShare = async () => {
     if (!currentCV.name) { toast.error("Please enter your name first"); return; }
-    saveCV(); const shareUrl = `${window.location.origin}/cv/${currentCV.slug}`;
+    const slug = currentCV.slug || `${currentCV.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")}-${Math.random().toString(36).substring(2, 8)}`;
+    saveCV();
+    const shareUrl = `${window.location.origin}/cv/${slug}`;
     await navigator.clipboard.writeText(shareUrl); toast.success("Share link copied!"); router.push("/dashboard");
   };
 
