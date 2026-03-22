@@ -25,13 +25,31 @@ export default function PublicCVPage() {
     if (!element) { toast.error("Preview not found"); setIsExporting(false); return; }
     try {
       const canvas = await html2canvas(element, { scale: 2, useCORS: true, logging: false });
-      const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const ratio = pdfWidth / canvas.width;
+      const totalHeightMm = canvas.height * ratio;
+      let renderedMm = 0;
+      let page = 0;
+      while (renderedMm < totalHeightMm) {
+        if (page > 0) pdf.addPage("a4", "p");
+        const remainingMm = totalHeightMm - renderedMm;
+        const pageHeightMm = Math.min(pdfHeight, remainingMm);
+        const sourceY = Math.round(renderedMm / ratio);
+        const sourceHeight = Math.round(pageHeightMm / ratio);
+        const sourceHeightClamped = Math.min(sourceHeight, canvas.height - sourceY);
+        const pageCanvas = document.createElement("canvas");
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = sourceHeightClamped;
+        const pageCtx = pageCanvas.getContext("2d")!;
+        pageCtx.drawImage(canvas, 0, sourceY, canvas.width, sourceHeightClamped, 0, 0, canvas.width, sourceHeightClamped);
+        pdf.addImage(pageCanvas.toDataURL("image/png"), "PNG", 0, 0, pdfWidth, pageHeightMm);
+        renderedMm += pageHeightMm;
+        page++;
+      }
       pdf.save(`${cv?.name || "cv"}.pdf`);
-      toast.success("PDF downloaded!");
+      toast.success(`PDF downloaded! (${page} ${page === 1 ? "page" : "pages"})`);
     } catch { toast.error("Failed to export PDF"); }
     setIsExporting(false);
   };

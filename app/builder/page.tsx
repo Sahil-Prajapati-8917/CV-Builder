@@ -116,23 +116,27 @@ export default function BuilderPage() {
     try {
       const size = paperSizes[paperSize];
       const canvas = await html2canvas(element, { scale: 2, useCORS: true, logging: false });
-      const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", [size.w, size.h]);
       const pdfWidth = size.w;
       const pdfHeight = size.h;
       const ratio = pdfWidth / canvas.width;
-      const totalCanvasHeightMm = canvas.height * ratio;
-      let renderedHeight = 0;
+      const totalHeightMm = canvas.height * ratio;
+      let renderedMm = 0;
       let page = 0;
-      while (renderedHeight < totalCanvasHeightMm) {
+      while (renderedMm < totalHeightMm) {
         if (page > 0) pdf.addPage([pdfWidth, pdfHeight], "p");
-        const remainingMm = totalCanvasHeightMm - renderedHeight;
-        const destHeight = Math.min(pdfHeight, remainingMm);
-        const sourceHeight = Math.round(destHeight * canvas.width / pdfWidth);
-        const sourceY = Math.round(renderedHeight * canvas.width / pdfWidth);
+        const remainingMm = totalHeightMm - renderedMm;
+        const pageHeightMm = Math.min(pdfHeight, remainingMm);
+        const sourceY = Math.round(renderedMm / ratio);
+        const sourceHeight = Math.round(pageHeightMm / ratio);
         const sourceHeightClamped = Math.min(sourceHeight, canvas.height - sourceY);
-        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, destHeight, undefined, "FAST", 0, sourceY, canvas.width, sourceHeightClamped);
-        renderedHeight += destHeight;
+        const pageCanvas = document.createElement("canvas");
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = sourceHeightClamped;
+        const pageCtx = pageCanvas.getContext("2d")!;
+        pageCtx.drawImage(canvas, 0, sourceY, canvas.width, sourceHeightClamped, 0, 0, canvas.width, sourceHeightClamped);
+        pdf.addImage(pageCanvas.toDataURL("image/png"), "PNG", 0, 0, pdfWidth, pageHeightMm);
+        renderedMm += pageHeightMm;
         page++;
       }
       pdf.save(`${currentCV.name || "cv"}.pdf`);
