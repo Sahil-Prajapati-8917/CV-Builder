@@ -37,6 +37,8 @@ export function CustomStep() {
 
   const handleFinish = () => {
     saveCV();
+    toast.success("CV saved successfully!");
+    router.push("/dashboard");
   };
 
   return (
